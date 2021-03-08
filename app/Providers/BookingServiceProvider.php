@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use R7\Booking\Models\Tblmodorders;
 use R7\Booking\Models\Tblrefundorder;
 use R7\Booking\Models\Tblrinfo;
+use R7\Booking\Models\TblstripeCustomers;
 use R7\Booking\Models\Transaction;
 use Rinvex\Support\Traits\ConsoleTools;
 
@@ -26,7 +27,8 @@ class BookingServiceProvider extends ServiceProvider
             'r7.booking.tblrinfo' => Tblrinfo::class,
             'r7.booking.tblmodorders' => Tblmodorders::class,
             'r7.booking.tblrefundorder' => Tblrefundorder::class,
-            'r7.booking.tranaction' => Transaction::class
+            'r7.booking.tranaction' => Transaction::class,
+            'r7.booking.tblstripeCustomers' => TblstripeCustomers::class
         ]);
     }
 

@@ -10,10 +10,11 @@ return [
     // Booking Database Tables
     'tables' => [
 
-        'booking' => 'tblrinfo',
-        'mod_booking' => 'tblmodorders',
-        'edit_booking' => 'tblrefundorder',
-        'stripe_customer_table' => 'tblstripeCustomers'
+        'tblrinfo' => 'tblrinfo',
+        'tblmodorders' => 'tblmodorders',
+        'tblrefundorder' => 'tblrefundorder',
+        'tranaction' => 'transaction',
+        'tblstripeCustomers' => 'tblstripeCustomers'
 
     ],
 
@@ -24,10 +25,11 @@ return [
 
     // Booking Models
     'models' => [
-        'booking' => \R7\Booking\Models\Tblrinfo::class,
-        'mod_booking' => \R7\Booking\Models\Tblmodorders::class,
-        'refund_booking' => \R7\Booking\Models\Tblmodorders::class,
-        'transaction' => \R7\Booking\Models\Transaction::class
+        'tblrinfo' => \R7\Booking\Models\Tblrinfo::class,
+        'tblmodorders' => \R7\Booking\Models\Tblmodorders::class,
+        'tblrefundorder' => \R7\Booking\Models\Tblmodorders::class,
+        'tranaction' => \R7\Booking\Models\Transaction::class,
+        'tblstripeCustomers' => \R7\Booking\Models\TblstripeCustomers::class
     ],
 
 ];
