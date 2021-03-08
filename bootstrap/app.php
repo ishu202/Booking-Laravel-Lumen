@@ -23,9 +23,9 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
-// $app->withEloquent();
+ $app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +97,8 @@ $app->configure('app');
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(Urameshibr\Providers\FormRequestServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
+$app->register(\Rinvex\Support\Providers\SupportServiceProvider::class);
+$app->register(\R7\Booking\Providers\BookingServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
