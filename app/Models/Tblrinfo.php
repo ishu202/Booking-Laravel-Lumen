@@ -36,7 +36,7 @@ class Tblrinfo extends Model
 
     public static function getData($order_id): array
     {
-        $base_query = file_get_contents( base_path('vendor/r7booking/ishu8957/Models/get_current_booking_state.sql'));
+        $base_query = file_get_contents( base_path('vendor/r7booking/ishu8957/app/Models/get_current_booking_state.sql'));
         $query = self::create_query($base_query,Carbon::now()->subYears(5),Carbon::now()->addYears(5));
         return DB::select(($query),[$order_id]);
     }
