@@ -32,7 +32,9 @@ class BookingServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $this->publishesConfig('r7/bookings');
+        $this->publishesConfig('r7booking/ishu8957');
+        $this->publishesMigrations('r7booking/ishu8957');
+        ! $this->autoloadMigrations('r7booking/ishu8957') || $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
     }
 
 }
