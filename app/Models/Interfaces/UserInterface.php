@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace R7\Booking\Interface\Models;
+namespace R7\Booking\Models\Interfaces;
 
 interface UserInterface{
     public static function get_basic_userinfo($table_name,$user_id);
 
     public static function get_web_user_info_where($user_type_id, $user_id);
-    
-    
+
+
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace R7\Booking\Interface\Models;
+namespace R7\Booking\Models\Interfaces;
 
 interface TransactionInterface
 {
