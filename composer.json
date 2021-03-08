@@ -1,5 +1,5 @@
 {
-    "name": "r7booking/laravel-lumen",
+    "name": "r7booking/stripe",
     "description": "booking library for laravel and lumen",
     "keywords": ["framework", "laravel", "lumen","bookings"],
     "license": "MIT",
