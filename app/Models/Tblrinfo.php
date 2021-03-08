@@ -31,6 +31,7 @@ class Tblrinfo extends Model
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+        $this->setTable(config('r7.booking.tables.booking'));
     }
 
     public static function getData($order_id): array
@@ -51,5 +52,5 @@ class Tblrinfo extends Model
             ( $from && $to ) ? sprintf( $filterTemplate, sprintf( $dateTemplate, $from ), sprintf( $dateTemplate, $to ), sprintf( $fieldTemplate, 'date_from' ), sprintf( $fieldTemplate, 'date_to' ) ) : ''
         );
     }
-    
+
 }

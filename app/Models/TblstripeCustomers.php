@@ -16,6 +16,7 @@ class TblstripeCustomers extends Model
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+        $this->setTable(config('r7.booking.tables.stripe_customer'));
         $this->setTable(config('r7.booking.tables.stripe_customer_table'));
     }
 

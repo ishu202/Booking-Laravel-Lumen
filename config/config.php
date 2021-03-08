@@ -10,11 +10,11 @@ return [
     // Booking Database Tables
     'tables' => [
 
-        'tblrinfo' => 'tblrinfo',
-        'tblmodorders' => 'tblmodorders',
-        'tblrefundorder' => 'tblrefundorder',
-        'tranaction' => 'transaction',
-        'tblstripeCustomers' => 'tblstripeCustomers'
+        'booking' => 'tblrinfo',
+        'mod_booking' => 'tblmodorders',
+        'refund_booking' => 'tblrefundorder',
+        'transaction' => 'transaction',
+        'stripe_customer' => 'tblstripeCustomers'
 
     ],
 
