@@ -3,35 +3,20 @@
 
 namespace R7\Booking\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use R7\Booking\Models\Abstracts\BookingAbstract;
 use R7\Booking\Models\Interfaces\RefundOrderInterface;
 
-class Tblrefundorder extends Model implements RefundOrderInterface
+class Tblrefundorder extends BookingAbstract implements RefundOrderInterface
 {
-    protected $fillable = [
-        'order_id',
-        'tool_id',
-        'units',
-        'user_id',
-        'guest_id',
-        'date_from',
-        'date_to',
-        'message',
-        'pick_time',
-        'drop_time',
-        'total_amount',
-        'payment_status',
-        'payment_ids',
-        'payment_type',
-        'status',
-        'order_status',
-        'refundFromTable',
-        'refundIdFromTable'
-    ];
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+
+        $this->mergeFillable([
+            'refundFromTable',
+            'refundIdFromTable'
+        ]);
 
         $this->setTable(config('r7.booking.tables.refund_booking'));
 
@@ -40,17 +25,12 @@ class Tblrefundorder extends Model implements RefundOrderInterface
 
     public function get_all_refunds(string $order_id)
     {
-        // TODO: Implement get_all_refunds() method.
+        self::query()->where(['order_id',$order_id])->get();
     }
 
     public function update_order_refund_items(array $booking_data)
     {
-        // TODO: Implement update_order_refund_items() method.
-    }
-
-    public function get_refund_items($order_id)
-    {
-        // TODO: Implement get_refund_items() method.
+       self::query()->create($booking_data);
     }
 
     public function display_orders_with_user_info(?string $from, ?string $to)

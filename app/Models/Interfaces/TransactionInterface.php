@@ -11,4 +11,6 @@ interface TransactionInterface
 
     public function return_inserted_transaction();
 
+    public function get_txn_id_from_refund($order_id);
+
 }

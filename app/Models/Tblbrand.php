@@ -17,6 +17,6 @@ class Tblbrand extends Model implements BrandInterface
 
     public function brand_count()
     {
-        // TODO: Implement brand_count() method.
+        return self::query()->count('b_name');
     }
 }

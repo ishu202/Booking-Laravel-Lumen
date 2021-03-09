@@ -55,16 +55,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function display_contact_info()
     {
-        // TODO: Implement display_contact_info() method.
+
     }
 
     public function fetch_state()
     {
-        // TODO: Implement fetch_state() method.
+        return Tblstate::all();
     }
 
-    public function user_count()
+    public function user_count(): int
     {
-        // TODO: Implement user_count() method.
+        return self::query()->count('id');
     }
 }

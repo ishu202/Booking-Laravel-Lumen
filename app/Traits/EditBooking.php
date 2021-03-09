@@ -44,7 +44,7 @@ trait EditBooking
 
     public function setTxnIds() :self
     {
-        $this->txn_ids = app('r7.booking.transaction')->get_payment_ids_where($this->validOrderId($this->orderid));
+        $this->txn_ids = app('r7.booking.transactions')->get_payment_ids_where($this->validOrderId($this->orderid));
         return $this;
     }
 
@@ -84,7 +84,7 @@ trait EditBooking
     }
 
     public function setChargeIdFromRefundId() :self {
-        $this->charge_id_from_refund_id = app('r7.booking.tblrefundorder')->get_refund_items($this->validOrderId($this->orderid));
+        $this->charge_id_from_refund_id = app('r7.booking.transactions')->get_txn_id_from_refund($this->validOrderId($this->orderid));
         return $this;
     }
 

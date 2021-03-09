@@ -3,30 +3,11 @@
 
 namespace R7\Booking\Models;
 
-
-use Illuminate\Database\Eloquent\Model;
+use R7\Booking\Models\Abstracts\BookingAbstract;
 use R7\Booking\Models\Interfaces\UpdateOrderInterface;
 
-class Tblmodorders extends Model implements UpdateOrderInterface
+class Tblmodorders extends BookingAbstract implements UpdateOrderInterface
 {
-    protected $fillable = [
-        'order_id',
-        'tool_id',
-        'units',
-        'user_id',
-        'guest_id',
-        'date_from',
-        'date_to',
-        'message',
-        'pick_time',
-        'drop_time',
-        'total_amount',
-        'payment_status',
-        'payment_ids',
-        'payment_type',
-        'status',
-        'order_status'
-    ];
 
     public function __construct(array $attributes = [])
     {
@@ -42,6 +23,6 @@ class Tblmodorders extends Model implements UpdateOrderInterface
 
     public function update_booking_data(array $booking_data)
     {
-        // TODO: Implement update_booking_data() method.
+        return self::query()->create($booking_data);
     }
 }

@@ -6,28 +6,11 @@ namespace R7\Booking\Models;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use R7\Booking\Models\Abstracts\BookingAbstract;
 use R7\Booking\Models\Interfaces\BookingInterface;
 
-class Tblrinfo extends Model implements BookingInterface
+class Tblrinfo extends BookingAbstract implements BookingInterface
 {
-    protected $fillable = [
-        'order_id',
-        'tool_id',
-        'units',
-        'user_id',
-        'guest_id',
-        'date_from',
-        'date_to',
-        'message',
-        'pick_time',
-        'drop_time',
-        'total_amount',
-        'payment_status',
-        'payment_ids',
-        'payment_type',
-        'status',
-        'order_status'
-    ];
 
     public function __construct(array $attributes = [])
     {

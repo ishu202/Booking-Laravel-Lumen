@@ -9,7 +9,4 @@ interface RefundOrderInterface{
 
     public function update_order_refund_items(array $booking_data);
 
-    public function get_refund_items($order_id);
-
-
 }
