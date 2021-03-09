@@ -64,7 +64,7 @@ class Tblrinfo extends Model implements BookingInterface
         // TODO: Implement get_payment_options() method.
     }
 
-    public function display_orders_with_user_info(?string $from, ?string $to)
+    public function display_orders_with_user_info($from = null, $to = null)
     {
         // TODO: Implement display_orders_with_user_info() method.
     }
