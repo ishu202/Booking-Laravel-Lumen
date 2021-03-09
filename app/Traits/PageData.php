@@ -53,7 +53,7 @@ trait PageData
             'disabledDates' => app('r7.booking.tblsettings')->get_disabled_dates_data(),
             'timings' => app('r7.booking.tblsettings')->get_timing_data(),
             'state' => app('r7.booking.tblstate')->fetch_state(),
-            'tax_percentage' => app('r7.booking.tbltax')->get_tax_rate(),
+            'tax_percentage' => app('r7.booking.tbltaxrate')->get_tax_rate(),
             'results' => app('r7.booking.tblstate')->get_invoice($id)
         );
         return $this;
@@ -79,7 +79,7 @@ trait PageData
             'disabledDates' => app('r7.booking.tblsettings')->get_disabled_dates_data(),
             'timings' => app('r7.booking.tblsettings')->get_timing_data(),
             'state' => app('r7.booking.tblstate')->fetch_state(),
-            'tax_percentage' => app('r7.booking.tbltax')->get_tax_rate()
+            'tax_percentage' => app('r7.booking.tbltaxrate')->get_tax_rate()
         );
     }
 
