@@ -6,6 +6,15 @@ namespace R7\Booking\Models\Interfaces;
 
 interface BookingInterface{
 
-    public static function getPaymentOptions($order_id);
+    public function check_rental_exists($booking_table_id);
+
+    //alias fun getPaymentOptions
+    public function get_payment_options(string $order_id);
+
+    public function display_orders_with_user_info(?string $from,?string $to);
+
+    public function get_rental_status_types();
+
+    public function booking_count();
 
 }

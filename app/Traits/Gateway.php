@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace R7\Booking\Traits;
 
+use Exception;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\AuthenticationException;
@@ -14,23 +15,18 @@ use Stripe\StripeClient;
 trait Gateway
 {
     use BookingUtility;
+    use EditBooking;
+    use PageData;
 
     private $stripe;
     private $error = [];
     private $success = [];
     private $response = [];
-    private $order;
 
-    /**
-     * Gateway constructor.
-     *
-     * @param $params
-     * @param EditOrder|CreateBooking $order
-     */
-    public function __construct($params , $order)
+
+    public function __construct()
     {
         $this->stripe = new StripeClient(config('r7.booking.gateway.stripe_api_secret'));
-        $this->order = $order;
     }
 
     /**
@@ -162,8 +158,8 @@ trait Gateway
         }else{
             $this->makeTaxRatesInactiveStripe();
             $balanceJson = $this->response[2]['invoice']->jsonSerialize();
-            if ( $this->Rntr->insert_transaction_cash( BookingUtiliy::prepare_stripe_response( json_encode( $balanceJson ), $transaction_type, $orderid ) ) ) {
-                return $this->transaction->return_inserted_transaction();
+            if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_stripe_response( json_encode( $balanceJson ), $transaction_type, $orderid ) ) ) {
+                return app('r7.booking.transaction')->return_inserted_transaction();
             } else {
                 return false;
             }
@@ -172,7 +168,7 @@ trait Gateway
 
     private function createTaxRateStripe(){
         $this->base_request(function (){
-            $states = $this->Rntr->fetch_state();
+            $states = app('r7.booking.tblusers')->fetch_state();
             $contact = $this->getStoreContactData();
             $tax_State = array_reduce($states , function($memo, $state) use ($contact) {
                 preg_match("/{$state->State}/",$contact[0]['con_address'],$matches);
@@ -188,7 +184,7 @@ trait Gateway
                         'display_name' => 'TAX',
                         'description' => "TAX {$state[0]}",
                         'jurisdiction' => $state[0],
-                        'percentage' => $this->order->editorder['tax_percentage'][0]['taxpercentage'],
+                        'percentage' => $this->editorder['tax_percentage'][0]['taxpercentage'],
                         'inclusive' => false,
                     ]);
                 },$tax_State)
@@ -219,9 +215,9 @@ trait Gateway
                             array_push($matches, $item_info->t_name);
                         }
                         return $matches;
-                    } , $this->order->editorder['tools_rent']);
+                    } , $this->editorder['tools_rent']);
 
-                    $filtered_tools = BookingUtiliy::array_flatten(array_filter($tool_name, function($val){
+                    $filtered_tools = self::array_flatten(array_filter($tool_name, function($val){
                         return count($val) > 0;
                     }));
                     array_push($memo,
@@ -259,8 +255,8 @@ trait Gateway
             return false;
         }else{
             $refundJson = $this->response[0]['refund']->jsonSerialize();
-            if ( $this->Rntr->insert_transaction_cash( BookingUtiliy::prepare_stripe_response( json_encode( $refundJson ), $transaction_type, $orderid ) ) ) {
-                return $this->transaction->return_inserted_transaction();
+            if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_stripe_response( json_encode( $refundJson ), $transaction_type, $orderid ) ) ) {
+                return app('r7.booking.transaction')->return_inserted_transaction();
             } else {
                 return false;
             }
@@ -270,14 +266,14 @@ trait Gateway
     public function refund_transaction_generator($refund_data,$refundMessage) {
         return array_reduce($refund_data,function($memo,$refund) use ($refundMessage){
 
-            $refund_amount = BookingUtiliy::amountFormatter($refund[9],$this->order->editorder['tax_percentage'][0]['taxpercentage']);
+            $refund_amount = self::amountFormatter($refund[9],$this->editorder['tax_percentage'][0]['taxpercentage']);
 
             $transaction = $this->refundFromStripe(
                 $refund[2],
                 $refund_amount,
                 $refundMessage,
-                $this->order->credit,
-                $this->order->getOrderId());
+                $this->credit,
+                $this->getOrderId());
 
             if($transaction){
                 array_push($memo,$transaction);

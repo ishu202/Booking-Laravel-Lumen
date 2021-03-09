@@ -17,6 +17,16 @@ class Transaction extends Model implements TransactionInterface
 
     public function get_payment_ids_where($order_id)
     {
-        return $this->where('order_id',$order_id)->get();
+        return self::query()->where('order_id',$order_id)->get();
+    }
+
+    public function insert_transaction_cash(array $response)
+    {
+        // TODO: Implement insert_transaction_cash() method.
+    }
+
+    public function return_inserted_transaction()
+    {
+        // TODO: Implement return_inserted_transaction() method.
     }
 }

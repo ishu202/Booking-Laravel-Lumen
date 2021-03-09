@@ -30,7 +30,7 @@ trait BookingUtility
             if ( preg_match( '#^in#i', $actual_txn_id[ $i ]["response"]['id'] ) === 1 ) {
                 $charge[ $i ] = $actual_txn_id[ $i ]["response"]['charge'];
             } else if ( preg_match( '#^re#i', $actual_txn_id[ $i ]["response"]['id'] ) === 1 ) {
-
+                continue;
             } else {
                 $charge[ $i ] = $actual_txn_id[ $i ]["response"]['id'];
             }

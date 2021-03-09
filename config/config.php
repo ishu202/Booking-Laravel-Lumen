@@ -13,8 +13,15 @@ return [
         'booking' => 'tblrinfo',
         'mod_booking' => 'tblmodorders',
         'refund_booking' => 'tblrefundorder',
-        'transaction' => 'transaction',
-        'stripe_customer' => 'tblstripeCustomers'
+        'transaction' => 'transactions',
+        'stripe_customer' => 'tblstripeCustomers',
+        'user' => 'tblusers',
+        'tax' => 'tbltaxrate',
+        'state' => 'tblstate',
+        'brand' => 'tblbrand',
+        'tool' => 'tbltool',
+        'settings' => 'tblsettings'
+
 
     ],
 
@@ -28,8 +35,14 @@ return [
         'tblrinfo' => \R7\Booking\Models\Tblrinfo::class,
         'tblmodorders' => \R7\Booking\Models\Tblmodorders::class,
         'tblrefundorder' => \R7\Booking\Models\Tblmodorders::class,
-        'tranaction' => \R7\Booking\Models\Transaction::class,
-        'tblstripeCustomers' => \R7\Booking\Models\TblstripeCustomers::class
+        'transaction' => \R7\Booking\Models\Transaction::class,
+        'tblstripeCustomers' => \R7\Booking\Models\TblstripeCustomers::class,
+        'tblusers' => \R7\Booking\Models\User::class,
+        'tbltool' => \R7\Booking\Models\Tbltool::class,
+        'tbltaxrate' => \R7\Booking\Models\Tbltaxrate::class,
+        'tblstate' => \R7\Booking\Models\Tblstate::class,
+        'tblbrand' => \R7\Booking\Models\Tblbrand::class,
+        'tblsettings' => \R7\Booking\Models\Tblsettings::class
     ],
 
 ];

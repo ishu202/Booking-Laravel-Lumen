@@ -3,12 +3,9 @@ declare(strict_types=1);
 
 namespace R7\Booking\Traits;
 
-use R7\Booking\Models\Transaction;
 
 trait EditBooking
 {
-    use BookingUtility;
-    
     protected $txn_ids;
     protected $orderid;
     protected $rinfo_table_type = 1;
@@ -21,16 +18,10 @@ trait EditBooking
     protected $debit = 1;
     protected $credit = 2;
     protected $CusStripeId;
-    protected $transaction;
-    
-    public function __construct()
-    {
-        $this->transaction = new Transaction();
-    }
 
 
     public function ifRentalExists($id): bool {
-        if($id !== NULL && $this->Rntr->check_rental_exists($id)){
+        if($id !== NULL && app('r7.booking.tblrinfo')->check_rental_exists($id)){
             return true;
         }else{
             return false;
@@ -53,7 +44,7 @@ trait EditBooking
 
     public function setTxnIds() :self
     {
-        $this->txn_ids = $this->transaction->get_payment_ids_where($this->validOrderId($this->orderid));
+        $this->txn_ids = app('r7.booking.transaction')->get_payment_ids_where($this->validOrderId($this->orderid));
         return $this;
     }
 
@@ -76,34 +67,34 @@ trait EditBooking
 
     public function setPaymentIds() :self
     {
-        $this->editorder['payment_ids'] = BookingUtiliy::format_txn_id_from_db($this->txn_ids);
+        $this->editorder['payment_ids'] = self::format_txn_id_from_db($this->txn_ids);
         return $this;
     }
 
     public function setRefundResult() :self
     {
-        $this->editorder['refund_result'] = $this->UpdateOrder->get_all_refunds($this->validOrderId($this->orderid));
+        $this->editorder['refund_result'] = app('r7.booking.tblrefundorder')->get_all_refunds($this->validOrderId($this->orderid));
         return $this;
     }
 
     public function setModResult() :self
     {
-        $this->editorder['mod_results'] = $this->UpdateOrder->get_all_mod_orders($this->validOrderId($this->orderid));
+        $this->editorder['mod_results'] = app('r7.booking.tblmodorders')->get_all_mod_orders($this->validOrderId($this->orderid));
         return $this;
     }
 
     public function setChargeIdFromRefundId() :self {
-        $this->charge_id_from_refund_id = $this->UpdateOrder->get_refund_items($this->validOrderId($this->orderid));
+        $this->charge_id_from_refund_id = app('r7.booking.tblrefundorder')->get_refund_items($this->validOrderId($this->orderid));
         return $this;
     }
 
     public function setReferedChargeRefundIds() :self {
-        $this->editorder['refered_charge_refund_ids'] = BookingUtiliy::format_charge_ids_from_refund_ids($this->charge_id_from_refund_id);
+        $this->editorder['refered_charge_refund_ids'] = self::format_charge_ids_from_refund_ids($this->charge_id_from_refund_id);
         return $this;
     }
 
     public function getPaymentOptions() :self {
-        $this->editorder['payment_options'] = $this->UpdateOrder->getPaymentOptions($this->validOrderId($this->orderid));
+        $this->editorder['payment_options'] = app('r7.booking.tblrinfo')->get_payment_options($this->validOrderId($this->orderid));
         return $this;
     }
 
@@ -139,12 +130,12 @@ trait EditBooking
     }
 
     public function getUserAndStripeData() :self {
-        $this->editorder['stripeCustomer'] = $this->StripeCustomer->getCustomerToken($this->getUserId());
+        $this->editorder['stripeCustomer'] = app('r7.booking.tblstripeCustomers')->getCustomerToken($this->getUserId());
         if ($this->getUserTypeId() == 2){
-            $this->editorder['user'] = $this->Rntr->get_basic_userinfo("tblusers",$this->getUserId());
-            $this->editorder['user_info'] = $this->Rntr->get_web_user_info_where($this->getUserTypeId(),$this->getUserId());
+            $this->editorder['user'] = app('r7.booking.tblusers')->get_basic_userinfo("tblusers",$this->getUserId());
+            $this->editorder['user_info'] = app('r7.booking.tblusers')->get_web_user_info_where($this->getUserTypeId(),$this->getUserId());
         }else{
-            $this->editorder['user_info'] = $this->Rntr->get_basic_userinfo("tblguest",$this->getUserId());
+            $this->editorder['user_info'] = app('r7.booking.tblusers')->get_basic_userinfo("tblguest",$this->getUserId());
         }
         $this->setCusStripeId();
         return $this;
@@ -168,7 +159,7 @@ trait EditBooking
             'drop_time_array' => $this->editorder['results'][0]['drop_time'],
             'unit' => $this->editorder['results'][0]['units'],
             'total_amount' => $this->editorder['results'][0]['total_amount'],
-            'item_info' => $this->Rntr->display_product_info()
+            'item_info' => app('r7.booking.tbltool')->display_product_info()
         );
         return $this;
     }
@@ -197,18 +188,20 @@ trait EditBooking
         return $this->CusStripeId;
     }
 
-    public function create_guest_due_order( $guest, $user, $orderid, $items, $payment_type, $transaction_id, $message ) {
-        $booking = BookingUtiliy::create_stripe_booking_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
-        if ( $this->UpdateOrder->update_booking_data( $booking ) ) {
+    public function create_guest_due_order( $guest, $user, $orderid, $items, $payment_type, $transaction_id, $message ): bool
+    {
+        $booking = self::create_stripe_booking_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
+        if ( app('r7.booking.tblmodorders')->update_booking_data( $booking ) ) {
             return true;
         } else {
             return false;
         }
     }
 
-    public function update_guest_refund_order_stripe( $guest, $user, $orderid, $items, $payment_type, $transaction_id, $message ) {
-        $booking = BookingUtiliy::create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
-        if ( $this->UpdateOrder->update_order_refund_items( $booking ) ) {
+    public function update_guest_refund_order_stripe( $guest, $user, $orderid, $items, $payment_type, $transaction_id, $message ): bool
+    {
+        $booking = self::create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
+        if ( app('r7.booking.tblrinfo')->update_order_refund_items( $booking ) ) {
             return true;
         } else {
             return false;
