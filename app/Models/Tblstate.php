@@ -18,6 +18,6 @@ class Tblstate extends Model implements StateInterface
 
     public function fetch_state()
     {
-        // TODO: Implement fetch_state() method.
+        return self::all();
     }
 }

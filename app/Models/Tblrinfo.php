@@ -18,47 +18,33 @@ class Tblrinfo extends BookingAbstract implements BookingInterface
         $this->setTable(config('r7.booking.tables.booking'));
     }
 
-    public static function getData($order_id): array
-    {
-        $base_query = file_get_contents( base_path('vendor/r7booking/ishu8957/app/Models/get_current_booking_state.sql'));
-        $query = self::create_query($base_query,Carbon::now()->subYears(5),Carbon::now()->addYears(5));
-        return DB::select(($query),[$order_id]);
-    }
-
-    private static function create_query($base_sql, $from, $to ): string
-    {
-        $dateTemplate 	= "STR_TO_DATE( '%1\$s', '%%Y-%%m-%%d' )";
-        $fieldTemplate 	= "STR_TO_DATE( original_mod_split.`%1\$s`, '%%Y-%%m-%%d' )";
-        $filterTemplate = "( ( ( %1\$s <= %3\$s ) AND ( %3\$s <= %2\$s ) ) OR ( ( %1\$s <= %4\$s ) AND ( %4\$s <= %2\$s ) ) ) AND";
-
-        return sprintf(
-            $base_sql,
-            ( $from && $to ) ? sprintf( $filterTemplate, sprintf( $dateTemplate, $from ), sprintf( $dateTemplate, $to ), sprintf( $fieldTemplate, 'date_from' ), sprintf( $fieldTemplate, 'date_to' ) ) : ''
-        );
-    }
-
     public function check_rental_exists($booking_table_id)
     {
-        // TODO: Implement check_rental_exists() method.
+        return self::query()->find($booking_table_id);
     }
 
     public function get_payment_options(string $order_id)
     {
-        // TODO: Implement get_payment_options() method.
+        return self::query()->where(['order_id',$order_id])->get();
     }
 
-    public function display_orders_with_user_info($from = null, $to = null)
+    public function display_orders_with_user_info($from = null, $to = null): array
     {
-        // TODO: Implement display_orders_with_user_info() method.
+        return self::create_query(null,$from,$to);
     }
 
     public function get_rental_status_types()
     {
-        // TODO: Implement get_rental_status_types() method.
+        $result =  DB::select("SELECT * FROM `tblrentalStatus`");
+        if(!empty($result)){
+            return $result;
+        }else{
+            return "";
+        }
     }
 
-    public function booking_count()
+    public function booking_count(): int
     {
-        // TODO: Implement booking_count() method.
+        return self::query()->count('id');
     }
 }

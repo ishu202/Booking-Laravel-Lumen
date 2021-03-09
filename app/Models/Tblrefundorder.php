@@ -32,19 +32,4 @@ class Tblrefundorder extends BookingAbstract implements RefundOrderInterface
     {
        self::query()->create($booking_data);
     }
-
-    public function display_orders_with_user_info(?string $from, ?string $to)
-    {
-        // TODO: Implement display_orders_with_user_info() method.
-    }
-
-    public function get_rental_status_types()
-    {
-        // TODO: Implement get_rental_status_types() method.
-    }
-
-    public function booking_count()
-    {
-        // TODO: Implement booking_count() method.
-    }
 }

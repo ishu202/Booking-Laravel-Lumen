@@ -23,20 +23,27 @@ class TblstripeCustomers extends Model implements StripeCustomerInterface
 
     public function insert_customer_id_guest($customer_id)
     {
-        // TODO: Implement insert_customer_id_guest() method.
+        return self::query()->create([
+            'customerId' => $customer_id
+        ]);
     }
 
     public function getCustomerToken($user_id)
     {
-        // TODO: Implement getCustomerToken() method.
+        return self::query()->where(['user_id' => $user_id])
+                    ->get()->toArray();
     }
 
     public function insert_customer_id_user($user_type, $user_id, $customer_id)
     {
-        // TODO: Implement insert_customer_id_user() method.
+        return self::query()->create([
+            'customerId' => $customer_id,
+            'user_type' => $user_type,
+            'user_id' => $user_id
+        ]);
     }
 
-    public function insert_payment_id_for_user($id, $payment_id)
+    public function insert_payment_id_for_user($user_id, $payment_id)
     {
         // TODO: Implement insert_payment_id_for_user() method.
     }

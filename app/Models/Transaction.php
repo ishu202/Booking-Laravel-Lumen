@@ -17,17 +17,20 @@ class Transaction extends Model implements TransactionInterface
 
     public function get_payment_ids_where($order_id)
     {
-        return self::query()->where(['order_id' => $order_id])->get();
+        return self::query()->where(['order_id' => $order_id])
+            ->orderBy('created_at')->get();
     }
 
     public function insert_transaction_cash(array $response)
     {
-        // TODO: Implement insert_transaction_cash() method.
+        $response['type'] = ($response['type'] == 1)? 1 : 2 ;
+        return self::query()->create($response);
     }
 
-    public function return_inserted_transaction()
+    public function return_inserted_transaction(): array
     {
-        // TODO: Implement return_inserted_transaction() method.
+        return self::query()->orderByDesc('created_at')
+            ->limit(1)->get()->toArray();
     }
 
     public function get_txn_id_from_refund($order_id)

@@ -5,6 +5,7 @@ namespace R7\Booking\Models;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use R7\Booking\Models\Interfaces\SettingsInterface;
 
 class Tblsettings extends Model implements SettingsInterface
@@ -17,11 +18,11 @@ class Tblsettings extends Model implements SettingsInterface
 
     public function get_timing_data()
     {
-        // TODO: Implement get_timing_data() method.
+        return DB::select("SELECT * FROM `tbltiming`");
     }
 
     public function get_disabled_dates_data()
     {
-        // TODO: Implement get_disabled_dates_data() method.
+        return DB::select("SELECT * FROM `tblDisabledDates`");
     }
 }
