@@ -66,7 +66,7 @@ trait PageData
     public function setManageBookingData(): array
     {
         return $this->manageBooking = array(
-            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info(),
+            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info(null,null),
             'item_info' => app('r7.booking.tbltool')->display_product_info(),
             'status' => app('r7.booking.tblrinfo')->get_rental_status_types()
         );
