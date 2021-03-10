@@ -45,16 +45,29 @@ class TblstripeCustomers extends Model implements StripeCustomerInterface
 
     public function insert_payment_id_for_user($user_id, $payment_id)
     {
-        // TODO: Implement insert_payment_id_for_user() method.
+        return self::query()->where(['customerid' => $user_id])
+            ->update([
+                'paymentMethodId' => $payment_id
+            ]);
+
     }
 
     public function insert_payment_id_for_guest($id, $guest_id, $payment_id)
     {
-        // TODO: Implement insert_payment_id_for_guest() method.
+        return self::query()->where([
+            'customerid' => $id
+        ])->update([
+                'paymentMethodId' => $payment_id,
+                'user_id' => $guest_id
+            ]);
     }
 
     public function update_guest_user_stripe($customer_id, $user_id)
     {
-        // TODO: Implement update_guest_user_stripe() method.
+        return self::query()->where([
+            'customerid' => $customer_id
+        ])->update([
+            'user_id' => $user_id
+        ]);
     }
 }

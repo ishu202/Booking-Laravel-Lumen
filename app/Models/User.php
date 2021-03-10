@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Auth\Authorizable;
 use R7\Booking\Models\Interfaces\AdminInterface;
 use R7\Booking\Models\Interfaces\StateInterface;
@@ -43,19 +44,38 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
 
-    public function get_basic_userinfo($table_name, $user_id)
+    public function get_basic_userinfo($table_name, $user_id): array
     {
-        // TODO: Implement get_basic_userinfo() method.
+        return DB::select("SELECT * FROM {$table_name} WHERE id = '{$user_id}'");
     }
 
     public function get_web_user_info_where($user_type_id, $user_id)
     {
-        // TODO: Implement get_web_user_info_where() method.
+        self::query()->join('tblpinfo',function ($join) use ($user_type_id,$user_id){
+            $join->on('tblusers.p_id', '=' ,'tblpinfo.id')
+                ->where('tblpinfo.u_id', '=', $user_id)
+                ->where('tblpinfo.type_id', '=', $user_type_id);
+        })->get([
+            'tblusers.id',
+            'tblusers.username',
+            'tblusers.password',
+            'tblpinfo.f_name',
+            'tblpinfo.l_name',
+            'tblpinfo.email',
+            'tblpinfo.phone',
+            'tblpinfo.dob',
+            'tblpinfo.address',
+            'tblpinfo.zip',
+            'tblpinfo.state_id',
+            'tblpinfo.city_id',
+            'tblpinfo.country_id',
+            'tblpinfo.type_id'
+        ]);
     }
 
-    public function display_contact_info()
+    public function display_contact_info(): array
     {
-
+        return DB::select("SELECT * FROM tblcontact WHERE tblcontact.id = 1");
     }
 
     public function fetch_state()

@@ -17,6 +17,6 @@ class Tbltaxrate extends Model implements TaxInterface
 
     public function get_tax_rate()
     {
-        // TODO: Implement get_tax_rate() method.
+        return self::query()->where(['id' =>  1])->get();
     }
 }

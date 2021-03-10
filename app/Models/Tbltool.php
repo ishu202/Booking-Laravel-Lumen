@@ -17,21 +17,55 @@ class Tbltool extends Model implements ItemInterface
 
     public function display_product_info()
     {
-        // TODO: Implement display_product_info() method.
+        return self::all()->get([
+            'id',
+            't_anme',
+            'img1'
+        ]);
     }
 
     public function get_sellable_tool()
     {
-        // TODO: Implement get_sellable_tool() method.
+        return self::query()->join('tblbrand',function ($join){
+            /** $join self::join() */
+
+            $join->on('tbltool.brand_id','=','tblbrand.id')
+                ->where('tbltool.sell_p','!=','NULL')
+                ->orWhere('tbltool.sell_p','!=',0);
+        })->get([
+            'id',
+            't_name',
+            'b_name',
+            'ppd',
+            'sell_p',
+            'units',
+            'status',
+            'p_year'
+        ]);
     }
 
     public function get_rentable_tool()
     {
-        // TODO: Implement get_rentable_tool() method.
+        return self::query()->join('tblbrand',function ($join){
+            /** $join self::join() */
+
+            $join->on('tbltool.brand_id','=','tblbrand.id')
+                ->where('tbltool.ppd','!=','NULL')
+                ->orWhere('tbltool.ppd','!=',0);
+        })->get([
+            'id',
+            't_name',
+            'b_name',
+            'ppd',
+            'sell_p',
+            'units',
+            'status',
+            'p_year'
+        ]);
     }
 
-    public function item_count()
+    public function item_count(): int
     {
-        // TODO: Implement item_count() method.
+        return self::query()->count('id');
     }
 }
