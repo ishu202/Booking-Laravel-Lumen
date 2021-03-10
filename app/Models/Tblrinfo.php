@@ -30,7 +30,7 @@ class Tblrinfo extends BookingAbstract implements BookingInterface
 
     public function display_orders_with_user_info($from = null, $to = null): array
     {
-        return self::create_query(null,$from,$to);
+        return self::create_query($from,$to,null);
     }
 
     public function get_rental_status_types()

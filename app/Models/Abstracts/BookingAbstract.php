@@ -28,12 +28,18 @@ abstract class BookingAbstract extends Model
         'order_status'
     ];
 
-    protected static function create_query($args, $from, $to ): array
+    protected static function create_query($from = null, $to = null, ...$args): array
     {
         $base_sql = file_get_contents(
             base_path('vendor/r7booking/ishu8957/app/Models/get_current_booking_state.sql'
             ));
-        $args = $args?:"";
+        $args = array_reduce($args,function ($memo,$arg){
+            if ($arg){
+                $memo .= " {$arg} AND ";
+            }
+            return $memo;
+        },"");
+
 
         $dateTemplate 	= "STR_TO_DATE( '%1\$s', '%%Y-%%m-%%d' )";
         $fieldTemplate 	= "STR_TO_DATE( original_mod_split.`%1\$s`, '%%Y-%%m-%%d' )";
@@ -42,6 +48,8 @@ abstract class BookingAbstract extends Model
                           OR ( ( %1\$s <= %4\$s )
                           AND ( %4\$s <= %2\$s ) ) )
                           AND {$args}";
+
+
 
         $query = sprintf(
             $base_sql,
@@ -53,6 +61,7 @@ abstract class BookingAbstract extends Model
                     sprintf( $fieldTemplate, 'date_to' ) )
                 :
                 '');
+        dd($from,$to);
 
         return DB::select($query);
     }

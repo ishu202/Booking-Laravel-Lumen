@@ -4,6 +4,8 @@
 namespace R7\Booking\Traits;
 
 
+use Carbon\Carbon;
+
 trait PageData
 {
     protected $indexPage;
@@ -63,10 +65,18 @@ trait PageData
         return app('r7.booking.tblusers')->display_contact_info();
     }
 
+    public function getManageBookingData()
+    {
+        return $this->manageBooking;
+    }
+
     public function setManageBookingData(): array
     {
         return $this->manageBooking = array(
-            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info(null,null),
+            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
+                Carbon::now('America/Chicago')->subYears(20)->toDateString(),
+                Carbon::now('America/Chicago')->toDateString()
+            ),
             'item_info' => app('r7.booking.tbltool')->display_product_info(),
             'status' => app('r7.booking.tblrinfo')->get_rental_status_types()
         );
@@ -90,12 +100,12 @@ trait PageData
             'totalTool' => app('r7.booking.tbltool')->item_count('tbltool'),
             'bookings' => app('r7.booking.tblrinfo')->booking_count('tblrinfo'),
             'incoming' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
-                date( 'Y-m-d', time() - ( 7 * 24 * 60 * 60 ) ),
-                date( 'Y-m-d' )
+                Carbon::now('America/Chicago')->subDays(7)->format('Y-m-d'),
+                Carbon::now('America/Chicago')->format('Y-m-d')
             ),
             'outgoing' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
-                date( 'Y-m-d', time() - ( 7 * 24 * 60 * 60 ) ),
-                date( 'Y-m-d' )
+                Carbon::now('America/Chicago')->subDays(7)->format('Y-m-d'),
+                Carbon::now('America/Chicago')->format('Y-m-d')
             ),
             'brands' => app('r7.booking.tblbrand')->brand_count('tblbrand')
         );
