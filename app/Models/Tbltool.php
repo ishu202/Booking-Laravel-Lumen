@@ -12,14 +12,14 @@ class Tbltool extends Model implements ItemInterface
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->setTable(config('r7.booking.tables.tbltool'));
+        $this->setTable(config('r7.booking.tables.tool'));
     }
 
     public function display_product_info()
     {
         return self::all()->get([
             'id',
-            't_anme',
+            't_name',
             'img1'
         ]);
     }
@@ -33,14 +33,14 @@ class Tbltool extends Model implements ItemInterface
                 ->where('tbltool.sell_p','!=','NULL')
                 ->orWhere('tbltool.sell_p','!=',0);
         })->get([
-            'id',
-            't_name',
-            'b_name',
-            'ppd',
-            'sell_p',
-            'units',
-            'status',
-            'p_year'
+            'tbltool.id',
+            'tbltool.t_name',
+            'tblbrand.b_name',
+            'tbltool.ppd',
+            'tbltool.sell_p',
+            'tbltool.units',
+            'tbltool.status',
+            'tbltool.p_year'
         ]);
     }
 
@@ -53,14 +53,14 @@ class Tbltool extends Model implements ItemInterface
                 ->where('tbltool.ppd','!=','NULL')
                 ->orWhere('tbltool.ppd','!=',0);
         })->get([
-            'id',
-            't_name',
-            'b_name',
-            'ppd',
-            'sell_p',
-            'units',
-            'status',
-            'p_year'
+            'tbltool.id',
+            'tbltool.t_name',
+            'tblbrand.b_name',
+            'tbltool.ppd',
+            'tbltool.sell_p',
+            'tbltool.units',
+            'tbltool.status',
+            'tbltool.p_year'
         ]);
     }
 
