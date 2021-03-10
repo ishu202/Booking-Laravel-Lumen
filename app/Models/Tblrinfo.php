@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use R7\Booking\Models\Abstracts\BookingAbstract;
 use R7\Booking\Models\Interfaces\BookingInterface;
+use R7\Booking\Models\Interfaces\InvoiceInterface;
 
-class Tblrinfo extends BookingAbstract implements BookingInterface
+class Tblrinfo extends BookingAbstract implements BookingInterface , InvoiceInterface
 {
 
     public function __construct(array $attributes = [])
@@ -46,5 +47,10 @@ class Tblrinfo extends BookingAbstract implements BookingInterface
     public function booking_count(): int
     {
         return self::query()->count('id');
+    }
+
+    public function get_invoice($order_table_id)
+    {
+        return self::item_generator($order_table_id);
     }
 }

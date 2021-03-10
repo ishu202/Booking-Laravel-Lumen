@@ -18,16 +18,8 @@ trait PageData
 
 
     public function __construct() {
-        $this->setIndexData();
         $this->setCreateBookingData();
-        $this->setManageBookingData();
         $this->setTaxData();
-    }
-
-    public function setTaxData() {
-        $this->tax_data = [
-            'tax_data' => app('r7.booking.tbltaxrate')->get_tax_rate()
-        ];
     }
 
     public function getTaxData() {
@@ -46,6 +38,21 @@ trait PageData
         return $this->editorder;
     }
 
+    public function getStoreContactData() {
+        return $this->contact;
+    }
+
+    public function getManageBookingData()
+    {
+        return $this->manageBooking;
+    }
+
+    public function setTaxData() {
+        $this->tax_data = [
+            'tax_data' => app('r7.booking.tbltaxrate')->get_tax_rate()
+        ];
+    }
+
     public function setEditOrderData($id) : self
     {
         $this->editorder =  array(
@@ -56,27 +63,21 @@ trait PageData
             'timings' => app('r7.booking.tblsettings')->get_timing_data(),
             'state' => app('r7.booking.tblstate')->fetch_state(),
             'tax_percentage' => app('r7.booking.tbltaxrate')->get_tax_rate(),
-            'results' => app('r7.booking.tblstate')->get_invoice($id)
+            'results' => app('r7.booking.tblrinfo')->get_invoice($id)
         );
         return $this;
     }
 
-    public function getStoreContactData() {
-        return app('r7.booking.tblusers')->display_contact_info();
-    }
-
-    public function getManageBookingData()
+    public function setStoreContactData()
     {
-        return $this->manageBooking;
+        $this->contact = app('r7.booking.tblusers')->display_contact_info();
+        return $this;
     }
 
-    public function setManageBookingData(): array
+    public function setManageBookingData($from,$to): array
     {
         return $this->manageBooking = array(
-            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
-                Carbon::now('America/Chicago')->subYears(20)->toDateString(),
-                Carbon::now('America/Chicago')->toDateString()
-            ),
+            'results' => app('r7.booking.tblrinfo')->display_orders_with_user_info($from,$to),
             'item_info' => app('r7.booking.tbltool')->display_product_info(),
             'status' => app('r7.booking.tblrinfo')->get_rental_status_types()
         );
@@ -93,20 +94,14 @@ trait PageData
         );
     }
 
-    public function setIndexData(): array
+    public function setIndexData($from,$to): array
     {
         return $this->indexPage = array(
             'regusers' => app('r7.booking.tblusers')->user_count('tblusers'),
             'totalTool' => app('r7.booking.tbltool')->item_count('tbltool'),
             'bookings' => app('r7.booking.tblrinfo')->booking_count('tblrinfo'),
-            'incoming' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
-                Carbon::now('America/Chicago')->subDays(7)->format('Y-m-d'),
-                Carbon::now('America/Chicago')->format('Y-m-d')
-            ),
-            'outgoing' => app('r7.booking.tblrinfo')->display_orders_with_user_info(
-                Carbon::now('America/Chicago')->subDays(7)->format('Y-m-d'),
-                Carbon::now('America/Chicago')->format('Y-m-d')
-            ),
+            'incoming' => app('r7.booking.tblrinfo')->display_orders_with_user_info($from,$to),
+            'outgoing' => app('r7.booking.tblrinfo')->display_orders_with_user_info($from,$to),
             'brands' => app('r7.booking.tblbrand')->brand_count('tblbrand')
         );
     }

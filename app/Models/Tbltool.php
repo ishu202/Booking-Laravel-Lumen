@@ -17,7 +17,7 @@ class Tbltool extends Model implements ItemInterface
 
     public function display_product_info()
     {
-        return self::all()->get([
+        return self::all([
             'id',
             't_name',
             'img1'

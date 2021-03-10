@@ -4,6 +4,7 @@
 namespace R7\Booking\Models\Abstracts;
 
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -61,8 +62,23 @@ abstract class BookingAbstract extends Model
                     sprintf( $fieldTemplate, 'date_to' ) )
                 :
                 '');
-        dd($from,$to);
 
         return DB::select($query);
+    }
+
+    protected static function item_generator($id){
+        $data = self::create_query(
+            Carbon::now('America/Chicago')
+                ->subYears(20)
+                ->toDateString(),
+            Carbon::now('America/Chicago')
+                ->toDateString(),
+            "WHERE `order_status` = '1'"
+        );
+
+        var_dump($data);
+        die();
+
+        return $data;
     }
 }
