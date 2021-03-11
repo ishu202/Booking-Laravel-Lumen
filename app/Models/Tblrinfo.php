@@ -31,7 +31,9 @@ class Tblrinfo extends BookingAbstract implements BookingInterface , InvoiceInte
 
     public function display_orders_with_user_info($from = null, $to = null): array
     {
-        return self::create_query($from,$to,null);
+        $query = self::create_query($from,$to,"get_current_booking_state.sql",null);
+
+        return self::base_request($query);
     }
 
     public function get_rental_status_types()
