@@ -29,7 +29,7 @@ abstract class BookingAbstract extends Model
         'order_status'
     ];
 
-    protected static function create_query($from = null, $to = null, $file , ...$args): string
+    protected static function create_query($from, $to, $file , ...$args): string
     {
         $base_sql = file_get_contents(
             base_path("vendor/r7booking/ishu8957/app/Models/{$file}"
@@ -41,10 +41,10 @@ abstract class BookingAbstract extends Model
             return $memo;
         },"");
 
-
-        $dateTemplate 	= "STR_TO_DATE( '%1\$s', '%%Y-%%m-%%d' )";
-        $fieldTemplate 	= "STR_TO_DATE( original_mod_split.`%1\$s`, '%%Y-%%m-%%d' )";
-        $filterTemplate = "( ( ( %1\$s <= %3\$s )
+        if ($from && $to){
+            $dateTemplate 	= "STR_TO_DATE( '%1\$s', '%%Y-%%m-%%d' )";
+            $fieldTemplate 	= "STR_TO_DATE( original_mod_split.`%1\$s`, '%%Y-%%m-%%d' )";
+            $filterTemplate = "( ( ( %1\$s <= %3\$s )
                           AND ( %3\$s <= %2\$s ) )
                           OR ( ( %1\$s <= %4\$s )
                           AND ( %4\$s <= %2\$s ) ) )
@@ -52,16 +52,19 @@ abstract class BookingAbstract extends Model
 
 
 
-        return sprintf(
-            $base_sql,
-            ( $from && $to ) ?
-                sprintf( $filterTemplate,
-                    sprintf( $dateTemplate, $from ),
-                    sprintf( $dateTemplate, $to ),
-                    sprintf( $fieldTemplate, 'date_from' ),
-                    sprintf( $fieldTemplate, 'date_to' ) )
-                :
-                '');
+            return sprintf(
+                $base_sql,
+                ( $from && $to ) ?
+                    sprintf( $filterTemplate,
+                        sprintf( $dateTemplate, $from ),
+                        sprintf( $dateTemplate, $to ),
+                        sprintf( $fieldTemplate, 'date_from' ),
+                        sprintf( $fieldTemplate, 'date_to' ) )
+                    :
+                    '0');
+        }
+
+        return $base_sql;
 
     }
 
@@ -73,7 +76,7 @@ abstract class BookingAbstract extends Model
         $query = self::create_query(
             null,
             null,
-            "get_current_booking_with_response_state.sql")."WHERE booking.id = '{$id}'";
+            "get_current_booking_with_response_state.sql",null)."WHERE booking.id = '{$id}'";
 
         $data = self::base_request($query);
 
