@@ -1,9 +1,11 @@
+SET group_concat_max_len = 100000000;
 SELECT
     booking.id, booking.order_id,
     booking_state.tool_id, booking_state.units, booking_state.date_from, booking_state.date_to, booking_state.pick_time, booking_state.drop_time,
     booking_state.payment_id, booking_state.response,
     booking_state.is_outgoing, booking_state.is_incoming, booking_state.is_past_due, booking_state.rental_status,
-    user_info.customer_id, user_info.payment_method_id , user_info.f_name, user_info.l_name, user_info.email, user_info.phone,
+    user_info.customer_id, user_info.payment_method_id , user_info.f_name, user_info.l_name, user_info.email, user_info.phone, user_info.address,
+    user_info.city, user_info.state, user_info.Country, user_info.zip, user_info.type_id,
     tblPaymentStatus.type AS PaymentStatus
 FROM tblrinfo AS booking
 
@@ -29,7 +31,7 @@ FROM tblrinfo AS booking
              SELECT
                  original_mod_split.id,
                  original_mod_split.payment_id,
-                 original_mod_split.response,
+                 transactions.response,
                  original_mod_split.order_id,
                  original_mod_split.table_id,
                  original_mod_split.tool_id,
@@ -41,20 +43,20 @@ FROM tblrinfo AS booking
                  original_mod_split.rental_status,
 
                  (
-                         STR_TO_DATE( original_mod_split.date_from, '2020-01-01' )
+                         STR_TO_DATE( original_mod_split.date_from, '%Y-%m-%d' )
                          =
                          CURRENT_DATE
                      ) AS is_outgoing,
 
                  (
-                         STR_TO_DATE( original_mod_split.date_to, '2021-01-01' )
+                         STR_TO_DATE( original_mod_split.date_to, '%Y-%m-%d' )
                          =
                          CURRENT_DATE
                      ) AS is_incoming,
 
                  (
                          (
-                                 STR_TO_DATE( original_mod_split.date_to, '2021-01-01' )
+                                 STR_TO_DATE( original_mod_split.date_to, '%Y-%m-%d' )
                                  < CURRENT_DATE
                              )
                          AND
@@ -69,7 +71,6 @@ FROM tblrinfo AS booking
                       SELECT
                           original_mod_state.id,
                           original_mod_state.order_id,
-                          transactions.response,
                           original_mod_state.table_id,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.tool_id, ' , ', tally.n ), ' , ', -1 ) AS tool_id,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.units, ' , ', tally.n ), ' , ', -1 ) AS units,
@@ -91,14 +92,12 @@ FROM tblrinfo AS booking
                            ) AS original_mod_state
 
                                JOIN tally ON ( ROUND( ( CHAR_LENGTH( original_mod_state.tool_id ) - CHAR_LENGTH( REPLACE( original_mod_state.tool_id, ' , ', '' ) ) ) / CHAR_LENGTH( ' , ' ) ) >= tally.n - 1 )
-                               JOIN transactions ON original_mod_state.payment_ids = transactions.id
                   ) AS original_mod_split
 
                       LEFT JOIN (
                  SELECT
                      refund_state.id,
                      refund_state.order_id,
-                     transactions.response,
                      SUBSTRING_INDEX( SUBSTRING_INDEX( tool_id, ' , ', tally.n ), ' , ', -1 ) AS tool_id,
                      SUBSTRING_INDEX( SUBSTRING_INDEX( units, ' , ', tally.n ), ' , ', -1 ) AS units,
                      SUBSTRING_INDEX( SUBSTRING_INDEX( payment_id, ' , ', tally.n ), ' , ', -1 ) AS payment_id ,
@@ -128,7 +127,8 @@ FROM tblrinfo AS booking
                           JOIN transactions ON refund_state.payment_id = transactions.id
 
              ) AS refund_split
-                                ON ( ( refund_split.order_id = original_mod_split.order_id ) AND ( refund_split.refundFromTable = original_mod_split.table_id ) AND ( refund_split.refundIdFromTable = original_mod_split.id ) AND ( refund_split.tool_id = original_mod_split.tool_id ) AND ( refund_split.payment_id = original_mod_split.payment_id ) AND ( refund_split.response = original_mod_split.response ) )
+                                ON ( ( refund_split.order_id = original_mod_split.order_id ) AND ( refund_split.refundFromTable = original_mod_split.table_id ) AND ( refund_split.refundIdFromTable = original_mod_split.id ) AND ( refund_split.tool_id = original_mod_split.tool_id ) AND ( refund_split.payment_id = original_mod_split.payment_id ) )
+                      JOIN transactions ON original_mod_split.payment_id = transactions.id
 
              WHERE(
                       ( ( refund_split.tool_id IS NULL ) OR ( (CONVERT( original_mod_split.units, UNSIGNED INTEGER ) - CONVERT( refund_split.units, UNSIGNED INTEGER )) > 0 ) )
@@ -147,11 +147,20 @@ FROM tblrinfo AS booking
            u.l_name,
            u.email,
            u.phone ,
+           u.address,
+           ci.city,
+           s.s_full AS state,
+           c.country,
+           u.zip,
+           u.type_id,
            stripe.customerId AS customer_id,
            stripe.paymentMethodId AS payment_method_id
     FROM tblrinfo
              LEFT JOIN tblpinfo AS u ON ( u.u_id = tblrinfo.user_id )
              LEFT JOIN tblstripeCustomers AS stripe ON (stripe.user_id = tblrinfo.user_id)
+             LEFT JOIN tblstate AS s ON (s.id = u.state_id)
+             LEFT JOIN tblcountry AS c ON (c.id = u.country_id)
+             LEFT JOIN tblcities AS ci ON (u.city_id = ci.id)
     WHERE tblrinfo.user_id IS NOT NULL
 
     UNION ALL
@@ -163,11 +172,20 @@ FROM tblrinfo AS booking
            g.l_name,
            g.email,
            g.phone,
+           g.address,
+           ci.city,
+           s.s_full AS state,
+           c.country,
+           g.zip,
+           g.type_id,
            stripe.customerId AS customer_id,
            stripe.paymentMethodId AS payment_method_id
     FROM tblrinfo
              LEFT JOIN tblguest AS g ON ( g.id = tblrinfo.guest_id )
              LEFT JOIN tblstripeCustomers AS stripe ON (stripe.user_id = tblrinfo.guest_id)
+             LEFT JOIN tblstate AS s ON (s.id = g.state_id)
+             LEFT JOIN tblcountry AS c ON (c.id = g.country_id)
+             LEFT JOIN tblcities AS ci ON (g.city_id = ci.id)
     WHERE tblrinfo.guest_id IS NOT NULL
 
 ) AS user_info

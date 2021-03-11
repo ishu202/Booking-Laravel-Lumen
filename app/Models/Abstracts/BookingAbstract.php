@@ -71,12 +71,9 @@ abstract class BookingAbstract extends Model
 
     protected static function item_generator($id){
         $query = self::create_query(
-                Carbon::now('America/Chicago')
-                    ->subYears(20)
-                    ->toDateString(),
-                Carbon::now('America/Chicago')
-                    ->toDateString()
-            ,"get_current_booking_with_response_state.sql")."WHERE booking.id = '{$id}'";
+            null,
+            null,
+            "get_current_booking_with_response_state.sql")."WHERE booking.id = '{$id}'";
 
         $data = self::base_request($query);
 
