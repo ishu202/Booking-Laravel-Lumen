@@ -80,8 +80,7 @@ abstract class BookingAbstract extends Model
 
         $data = self::base_request($query);
 
-        var_dump($data);
-        die();
+
 
         $generated_result = array_reduce($data,function ($memo,$value){
             if (count(explode(" , ",$value->tool_id)) >= 1){
@@ -95,7 +94,8 @@ abstract class BookingAbstract extends Model
                     explode(" , ",$value->is_outgoing),
                     explode(" , ",$value->is_incoming),
                     explode(" , ",$value->is_past_due),
-                    explode(" , ",$value->rental_status)
+                    explode(" , ",$value->rental_status),
+                    explode(" , ",$value->response)
                 ];
 
                 $temp1 = function () use ($temp){
@@ -119,7 +119,8 @@ abstract class BookingAbstract extends Model
                     $memo[0]->is_outgoing,
                     $memo[0]->is_incoming,
                     $memo[0]->is_past_due,
-                    $memo[0]->rental_status
+                    $memo[0]->rental_status,
+                    $memo[0]->response
                 );
             }
 

@@ -1,7 +1,7 @@
 SET group_concat_max_len = 100000000;
 SELECT
     booking.id, booking.order_id,
-    booking_state.tool_id, booking_state.units, booking_state.date_from, booking_state.date_to, booking_state.pick_time, booking_state.drop_time,
+    booking_state.tool_id,booking_state.t_name, booking_state.units, booking_state.date_from, booking_state.date_to, booking_state.pick_time, booking_state.drop_time,
     booking_state.payment_id, booking_state.response,
     booking_state.is_outgoing, booking_state.is_incoming, booking_state.is_past_due, booking_state.rental_status,
     user_info.customer_id, user_info.payment_method_id , user_info.f_name, user_info.l_name, user_info.email, user_info.phone, user_info.address,
@@ -16,6 +16,7 @@ FROM tblrinfo AS booking
         GROUP_CONCAT( booking_split.table_id SEPARATOR ' , ' ) AS table_id,
         GROUP_CONCAT(booking_split.payment_id SEPARATOR ' , ') AS payment_id,
         GROUP_CONCAT( booking_split.tool_id SEPARATOR ' , ' ) AS tool_id,
+        GROUP_CONCAT( booking_split.t_name SEPARATOR ' , ' ) AS t_name,
         GROUP_CONCAT( booking_split.units SEPARATOR ' , ' ) AS units,
         GROUP_CONCAT( booking_split.date_from SEPARATOR ' , ' ) AS date_from,
         GROUP_CONCAT( booking_split.date_to SEPARATOR ' , ' ) AS date_to,
@@ -35,6 +36,7 @@ FROM tblrinfo AS booking
                  original_mod_split.order_id,
                  original_mod_split.table_id,
                  original_mod_split.tool_id,
+                 tbltool.t_name,
                  original_mod_split.units,
                  original_mod_split.date_from,
                  original_mod_split.date_to,
@@ -124,11 +126,11 @@ FROM tblrinfo AS booking
                       ) AS refund_state
 
                           JOIN tally ON ( ROUND( ( CHAR_LENGTH( refund_state.tool_id ) - CHAR_LENGTH( REPLACE( refund_state.tool_id, ' , ', '' ) ) ) / CHAR_LENGTH( ' , ' ) ) >= tally.n - 1 )
-                          JOIN transactions ON refund_state.payment_id = transactions.id
 
              ) AS refund_split
-                                ON ( ( refund_split.order_id = original_mod_split.order_id ) AND ( refund_split.refundFromTable = original_mod_split.table_id ) AND ( refund_split.refundIdFromTable = original_mod_split.id ) AND ( refund_split.tool_id = original_mod_split.tool_id ) AND ( refund_split.payment_id = original_mod_split.payment_id ) )
-                      JOIN transactions ON original_mod_split.payment_id = transactions.id
+                                ON ( ( refund_split.order_id = original_mod_split.order_id ) AND ( refund_split.refundFromTable = original_mod_split.table_id ) AND ( refund_split.refundIdFromTable = original_mod_split.id ) AND ( refund_split.tool_id = original_mod_split.tool_id ) )
+                      JOIN transactions ON (original_mod_split.payment_id = transactions.id)
+                      LEFT JOIN tbltool ON (original_mod_split.tool_id = tbltool.id)
 
              WHERE(
                       ( ( refund_split.tool_id IS NULL ) OR ( (CONVERT( original_mod_split.units, UNSIGNED INTEGER ) - CONVERT( refund_split.units, UNSIGNED INTEGER )) > 0 ) )
@@ -197,4 +199,4 @@ FROM tblrinfo AS booking
                 CHAR_LENGTH( booking.payment_status ),
                 CHAR_LENGTH( booking.payment_status )
             ) = tblPaymentStatus.id
-    )
+    );
