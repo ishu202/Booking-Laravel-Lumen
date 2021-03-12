@@ -96,6 +96,7 @@ abstract class BookingAbstract extends Model
                     'table_type'      => explode(" , ", $value->table_id),
                     'payment_id'      => explode(" , ",$value->payment_id),
                     't_name'          => explode(" , ",$value->t_name),
+                    'real_table_id'   => explode(" , ",$value->real_table_id),
                     'units'           => explode(" , ",$value->units),
                     'date_from'       => explode(" , ",$value->date_from),
                     'date_to'         => explode(" , ",$value->date_to),
@@ -109,7 +110,6 @@ abstract class BookingAbstract extends Model
                     'amount'          => explode(" , ",$value->amount),
                     'payment_type'    => explode(" , ",$value->payment_type),
                     'response'        => explode(" , ",$value->response),
-                    'order_status'    => explode(" , ",$value->order_status),
                     'creation_date'   => explode(" , ",$value->creation_date),
                     'updation_date'   => explode(" , ",$value->updation_date),
                 ];
@@ -144,10 +144,10 @@ abstract class BookingAbstract extends Model
                     $memo[0]->response,
                     $memo[0]->message,
                     $memo[0]->payment_type,
-                    $memo[0]->order_status,
                     $memo[0]->creation_date,
                     $memo[0]->updation_date,
-                    $memo[0]->table_id
+                    $memo[0]->table_id,
+                    $memo[0]->real_table_id
                 );
             }
 
