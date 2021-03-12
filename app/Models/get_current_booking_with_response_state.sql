@@ -1,8 +1,8 @@
-SET group_concat_max_len = 100000000;
 SELECT
     booking.id, booking.order_id,
     booking_state.tool_id,booking_state.t_name, booking_state.units, booking_state.date_from, booking_state.date_to, booking_state.pick_time, booking_state.drop_time,
-    booking_state.payment_id, booking_state.response,
+    booking_state.payment_id,booking_state.amount, booking_state.response, booking_state.message,booking_state.payment_type, booking_state.order_status,
+    booking_state.table_id, booking_state.creation_date, booking_state.updation_date,
     booking_state.is_outgoing, booking_state.is_incoming, booking_state.is_past_due, booking_state.rental_status,
     user_info.customer_id, user_info.payment_method_id , user_info.f_name, user_info.l_name, user_info.email, user_info.phone, user_info.address,
     user_info.city, user_info.state, user_info.Country, user_info.zip, user_info.type_id,
@@ -13,6 +13,9 @@ FROM tblrinfo AS booking
     SELECT
         booking_split.order_id,
         GROUP_CONCAT( booking_split.response SEPARATOR ' , ') AS response,
+        GROUP_CONCAT( booking_split.message SEPARATOR ' , ') AS message,
+        GROUP_CONCAT( booking_split.payment_type SEPARATOR ' , ') AS payment_type,
+        GROUP_CONCAT( booking_split.order_status SEPARATOR ' , ') AS order_status,
         GROUP_CONCAT( booking_split.table_id SEPARATOR ' , ' ) AS table_id,
         GROUP_CONCAT(booking_split.payment_id SEPARATOR ' , ') AS payment_id,
         GROUP_CONCAT( booking_split.tool_id SEPARATOR ' , ' ) AS tool_id,
@@ -23,15 +26,19 @@ FROM tblrinfo AS booking
         GROUP_CONCAT( booking_split.pick_time SEPARATOR ' , ' ) AS pick_time,
         GROUP_CONCAT( booking_split.drop_time SEPARATOR ' , ' ) AS drop_time,
         GROUP_CONCAT( booking_split.rental_status SEPARATOR ' , ' ) AS rental_status,
-
+        GROUP_CONCAT( booking_split.amount SEPARATOR ' , ' ) AS amount,
         GROUP_CONCAT( booking_split.is_outgoing SEPARATOR ' , ' ) AS is_outgoing,
         GROUP_CONCAT( booking_split.is_incoming SEPARATOR ' , ' ) AS is_incoming,
-        GROUP_CONCAT( booking_split.is_past_due SEPARATOR ' , ' ) AS is_past_due
+        GROUP_CONCAT( booking_split.is_past_due SEPARATOR ' , ' ) AS is_past_due,
+        GROUP_CONCAT( booking_split.creation_date SEPARATOR ' , ' ) AS creation_date,
+        GROUP_CONCAT( booking_split.updation_date SEPARATOR ' , ' ) AS updation_date
 
     FROM (
              SELECT
                  original_mod_split.id,
                  original_mod_split.payment_id,
+                 original_mod_split.message,
+                 original_mod_split.payment_type,
                  transactions.response,
                  original_mod_split.order_id,
                  original_mod_split.table_id,
@@ -42,7 +49,11 @@ FROM tblrinfo AS booking
                  original_mod_split.date_to,
                  original_mod_split.pick_time,
                  original_mod_split.drop_time,
+                 original_mod_split.amount,
                  original_mod_split.rental_status,
+                 original_mod_split.order_status,
+                 original_mod_split.creation_date,
+                 original_mod_split.updation_date,
 
                  (
                          STR_TO_DATE( original_mod_split.date_from, '%Y-%m-%d' )
@@ -74,6 +85,8 @@ FROM tblrinfo AS booking
                           original_mod_state.id,
                           original_mod_state.order_id,
                           original_mod_state.table_id,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.payment_type, ' , ', tally.n ), ' , ', -1 ) AS payment_type,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.message, ' , ', tally.n ), ' , ', -1 ) AS message,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.tool_id, ' , ', tally.n ), ' , ', -1 ) AS tool_id,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.units, ' , ', tally.n ), ' , ', -1 ) AS units,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.date_from, ' , ', tally.n ), ' , ', -1 ) AS date_from,
@@ -81,15 +94,19 @@ FROM tblrinfo AS booking
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.pick_time, ' , ', tally.n ), ' , ', -1 ) AS pick_time,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.drop_time, ' , ', tally.n ), ' , ', -1 ) AS drop_time,
                           SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.payment_ids, ' , ', tally.n ), ' , ', -1 ) AS payment_id,
-                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.rental_status, ' , ', tally.n ), ' , ', -1 ) AS rental_status
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.total_amount, ' , ', tally.n ), ' , ', -1 ) AS amount,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.rental_status, ' , ', tally.n ), ' , ', -1 ) AS rental_status,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.order_status, ' , ', tally.n ), ' , ', -1 ) AS order_status,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.CreationDate, ' , ', tally.n ), ' , ', -1 ) AS creation_date,
+                          SUBSTRING_INDEX( SUBSTRING_INDEX( original_mod_state.UpdationDate, ' , ', tally.n ), ' , ', -1 ) AS updation_date
 
                       FROM (
-                               SELECT o.id, o.order_id, o.tool_id, o.units, o.date_from, o.date_to, o.pick_time, o.drop_time,o.payment_ids, o.status AS rental_status, 1 AS table_id
+                               SELECT o.id,o.message , o.payment_type, o.order_id, o.tool_id, o.units, o.date_from, o.date_to, o.pick_time, o.drop_time,o.payment_ids,o.total_amount, o.status AS rental_status, o.order_status, 1 AS table_id, o.CreationDate, o.UpdationDate
                                FROM tblrinfo AS o
 
                                UNION ALL
 
-                               SELECT m.id, m.order_id, m.tool_id, m.units, m.date_from, m.date_to, m.pick_time, m.drop_time,m.payment_ids, m.status AS rental_status, 2 AS table_id
+                               SELECT m.id, m.message , m.payment_type, m.order_id, m.tool_id, m.units, m.date_from, m.date_to, m.pick_time, m.drop_time,m.payment_ids,m.total_amount, m.status AS rental_status, m.order_status, 2 AS table_id , m.CreationDate, m.UpdationDate
                                FROM tblmodorders AS m
                            ) AS original_mod_state
 
@@ -199,4 +216,4 @@ FROM tblrinfo AS booking
                 CHAR_LENGTH( booking.payment_status ),
                 CHAR_LENGTH( booking.payment_status )
             ) = tblPaymentStatus.id
-    );
+    )
