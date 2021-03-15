@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace R7\Booking\Traits;
 
+use DateTime;
+
 trait BookingUtility
 {
     public static function prepare_stripe_response( $refundResponse, $type, $orderid ): array
@@ -164,7 +166,7 @@ trait BookingUtility
             'drop_time'      => implode( " , ", $drop_time_array ),
             'total_amount'   => implode( " , ", $total_amount ),
             'payment_status' => 1,
-            'payment_id'     => $transaction_ids,
+            'payment_ids'     => $transaction_ids,
             'payment_type'   => $payment_type,
             'status'         => implode( " , ", $status )
         );
@@ -187,6 +189,7 @@ trait BookingUtility
         $units            = array();
         $total_amount     = array();
         $status           = array();
+
         if ( is_array( $transaction_id ) ) {
             $transaction_ids = implode( ' , ', $transaction_id );
         } else {
@@ -232,7 +235,7 @@ trait BookingUtility
                 array_push( $units, $items[ $i ][4] );
             }
             if ( ! empty( $items[ $i ][9] ) ) {
-                array_push( $total_amount, number_format( $items[ $i ][9], 2, '.', '' ) );
+                array_push( $total_amount, number_format( (float) $items[ $i ][9], 2, '.', '' ) );
             }
         }
 
@@ -249,7 +252,7 @@ trait BookingUtility
             'drop_time'         => implode( " , ", $drop_time_array ),
             'total_amount'      => implode( " , ", $total_amount ),
             'payment_status'    => 1,
-            'payment_id'        => $transaction_ids,
+            'payment_ids'        => $transaction_ids,
             'payment_type'      => $payment_type,
             'refundFromTable'   => implode( " , ", $table_type_array ),
             'refundIdFromTable' => implode( " , ", $table_ids_array ),
@@ -365,12 +368,12 @@ trait BookingUtility
             'drop_time'      => implode( " , ", $drop_time_array ),
             'total_amount'   => implode( " , ", $total_amount ),
             'payment_status' => 1,
-            'payment_id'     => $transaction_id,
+            'payment_ids'     => $transaction_id,
             'payment_type'   => $payment_type,
             'status'         => implode( " , ", $status )
         );
 
         return $booking;
     }
-    
+
 }

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 abstract class BookingAbstract extends Model
 {
+    const CREATED_AT = "CreationDate";
+    const UPDATED_AT = "UpdationDate";
+
     protected $fillable = [
         'order_id',
         'tool_id',

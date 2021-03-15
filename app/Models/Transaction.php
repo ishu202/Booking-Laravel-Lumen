@@ -9,6 +9,16 @@ use R7\Booking\Models\Interfaces\TransactionInterface;
 
 class Transaction extends Model implements TransactionInterface
 {
+    const CREATED_AT = "created_at";
+    const UPDATED_AT = NULL;
+
+    protected $fillable = [
+        'response',
+        'type',
+        'status',
+        'order_id'
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -27,10 +37,10 @@ class Transaction extends Model implements TransactionInterface
         return self::query()->create($response);
     }
 
-    public function return_inserted_transaction(): array
+    public function return_inserted_transaction(): int
     {
         return self::query()->orderByDesc('created_at')
-            ->limit(1)->get()->toArray();
+            ->limit(1)->get('id')->toArray()[0]['id'];
     }
 
     public function get_txn_id_from_refund($order_id)

@@ -8,16 +8,30 @@ use R7\Booking\Models\Interfaces\RefundOrderInterface;
 
 class Tblrefundorder extends BookingAbstract implements RefundOrderInterface
 {
+    protected $fillable = [
+        'order_id',
+        'tool_id',
+        'units',
+        'user_id',
+        'guest_id',
+        'date_from',
+        'date_to',
+        'message',
+        'pick_time',
+        'drop_time',
+        'total_amount',
+        'payment_status',
+        'payment_ids',
+        'payment_type',
+        'refundFromTable',
+        'refundIdFromTable',
+        'status',
+        'order_status'
+    ];
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-
-        $this->mergeFillable([
-            'refundFromTable',
-            'refundIdFromTable'
-        ]);
-
         $this->setTable(config('r7.booking.tables.refund_booking'));
 
     }

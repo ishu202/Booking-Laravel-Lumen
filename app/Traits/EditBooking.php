@@ -201,7 +201,7 @@ trait EditBooking
     public function update_guest_refund_order_stripe( $guest, $user, $orderid, $items, $payment_type, $transaction_id, $message ): bool
     {
         $booking = self::create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
-        if ( app('r7.booking.tblrinfo')->update_order_refund_items( $booking ) ) {
+        if ( app('r7.booking.tblrefundorder')->update_order_refund_items( $booking ) ) {
             return true;
         } else {
             return false;
@@ -224,7 +224,7 @@ trait EditBooking
 
     public function refundFromCash( $chargeId, $amount, $message, $transaction_type, $orderid ){
         if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_cash_response( $orderid, $amount, $transaction_type, $message ), $transaction_type, $orderid ) ) {
-            return app('r7.booking.tblmodorders')->return_inserted_transaction();
+            return app('r7.booking.transaction')->return_inserted_transaction();
         } else {
             return false;
         }
@@ -232,7 +232,8 @@ trait EditBooking
 
     public function update_guest_refund_order_cash($guest, $user, $orderid, $items, $payment_type, $transaction_id, $message){
         $booking = self::create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
-        if ( app('r7.booking.tblrinfo')->update_order_refund_items( $booking ) ) {
+
+        if ( app('r7.booking.tblrefundorder')->update_order_refund_items( $booking ) ) {
             return true;
         } else {
             return false;
