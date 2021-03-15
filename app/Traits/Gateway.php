@@ -16,7 +16,6 @@ trait Gateway
 {
     use BookingUtility;
     use EditBooking;
-    use PageData;
 
     private $stripe;
     private $error = [];
@@ -169,7 +168,7 @@ trait Gateway
     private function createTaxRateStripe(){
         $this->base_request(function (){
             $states = app('r7.booking.tblusers')->fetch_state();
-            $contact = $this->getStoreContactData();
+            $contact = app('r7.booking.tblusers')->display_contact_info();
             $tax_State = array_reduce($states , function($memo, $state) use ($contact) {
                 preg_match("/{$state->State}/",$contact[0]['con_address'],$matches);
 
@@ -263,17 +262,17 @@ trait Gateway
         }
     }
 
-    public function refund_transaction_generator($refund_data,$refundMessage) {
-        return array_reduce($refund_data,function($memo,$refund) use ($refundMessage){
+    public function refund_transaction_generator($order_id,$tax_percentage,$refund_data,$refundMessage) {
+        return array_reduce($refund_data,function($memo,$refund) use ($refundMessage,$tax_percentage, $order_id){
 
-            $refund_amount = self::amountFormatter($refund[9],$this->editorder['tax_percentage'][0]['taxpercentage']);
+            $refund_amount = self::amountFormatter($refund[9],$tax_percentage);
 
             $transaction = $this->refundFromStripe(
                 $refund[2],
                 $refund_amount,
                 $refundMessage,
                 $this->credit,
-                $this->getOrderId());
+                $order_id);
 
             if($transaction){
                 array_push($memo,$transaction);

@@ -5,7 +5,7 @@ SELECT
     booking_state.table_id, booking_state.creation_date, booking_state.updation_date,
     booking_state.is_outgoing, booking_state.is_incoming, booking_state.is_past_due, booking_state.rental_status,
     user_info.customer_id, user_info.payment_method_id , user_info.f_name, user_info.l_name, user_info.email, user_info.phone, user_info.address,
-    user_info.city_id, user_info.state, user_info.country_id, user_info.zip, user_info.type_id,
+    user_info.city_id, user_info.state, user_info.country_id, user_info.zip, user_info.type_id, user_info.user_id as user_table_id,user_info.guest_id as guest_table_id,
     tblPaymentStatus.type AS PaymentStatus
 FROM tblrinfo AS booking
 

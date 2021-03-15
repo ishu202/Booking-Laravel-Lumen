@@ -113,8 +113,8 @@ trait EditBooking
         return $this->userId;
     }
 
-    public function ifUserOrGuest(): bool {
-        if ($this->getUserTypeId() == 2){
+    public function ifUserOrGuest($user_type_id): bool {
+        if ($user_type_id == 2){
             return true;
         }else{
             return false;
@@ -207,4 +207,36 @@ trait EditBooking
             return false;
         }
     }
+
+    private function update_guest_order_cash( $guest, $user, $orderid, $totalAmount, $items, $payment_type, $transaction_type, $message ) {
+
+        if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_cash_response( $orderid, $totalAmount, $transaction_type, $message ) ) ) {
+            $booking = self::create_cash_booking_array( $guest, $user, $orderid, $items, $payment_type, $message );
+            if ( app('r7.booking.tblmodorders')->update_booking_data( $booking ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function refundFromCash( $chargeId, $amount, $message, $transaction_type, $orderid ){
+        if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_cash_response( $orderid, $amount, $transaction_type, $message ), $transaction_type, $orderid ) ) {
+            return app('r7.booking.tblmodorders')->return_inserted_transaction();
+        } else {
+            return false;
+        }
+    }
+
+    public function update_guest_refund_order_cash($guest, $user, $orderid, $items, $payment_type, $transaction_id, $message){
+        $booking = self::create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message );
+        if ( app('r7.booking.tblrinfo')->update_order_refund_items( $booking ) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

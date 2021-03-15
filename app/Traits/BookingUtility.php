@@ -273,4 +273,104 @@ trait BookingUtility
         }
         return $result;
     }
+
+    public static function prepare_cash_response( $orderid, $totalAmount, $type, $message = null ) {
+        $date               = new DateTime();
+        $transaction_prefix = ( $type === 1) ? 'ch' : 're';
+        $response_arr       = array(
+            'id'                     => $transaction_prefix . "_" . md5( $date->format( 'Y-m-d H:i:s' ) ),
+            'metadata'               => array(
+                'order_id' => $orderid,
+                'Amount'   => $totalAmount,
+                'message'  => $message
+            ),
+            'created_at'             => $date->format( 'Y-m-d H:i:s' ),
+            'payment_method_details' => array(
+                'card' => array(
+                    'funding' => 'Cash/Card At'
+                ),
+                'type' => 'Store'
+            )
+        );
+
+        $transaction = array(
+            'response' => json_encode( $response_arr ),
+            'status'   => 1,
+            'order_id' => $orderid,
+            'type'     => $type
+        );
+
+        return $transaction;
+    }
+
+    private static function create_cash_booking_array( $guest, $user, $orderid, $items, $payment_type, $message ) {
+        $items_array      = array();
+        $pick_dates_array = array();
+        $drop_dates_array = array();
+        $pick_time_array  = array();
+        $drop_time_array  = array();
+        $units            = array();
+        $total_amount     = array();
+        $status           = array();
+        $transaction_id   = app('r7.booking.transaction')->return_inserted_transaction();
+
+        if ( empty( $transaction_id ) ) {
+            $transaction_id = "N/A";
+        }
+        for ( $i = 0; $i < count( $items ); $i ++ ) {
+            if ( ! empty( $items[ $i ][0] ) ) {
+                array_push( $items_array, $items[ $i ][0] );
+                array_push( $status, 0 );
+            }
+            if ( ! empty( $items[ $i ][2] ) ) {
+                if ( $items[ $i ][2] != "N/A" ) {
+                    array_push( $pick_dates_array, date( 'Y-m-d', strtotime( $items[ $i ][2] ) ) );
+                } else {
+                    array_push( $pick_dates_array, "N/A" );
+                }
+
+            }
+            if ( ! empty( $items[ $i ][3] ) ) {
+                if ( $items[ $i ][3] != "N/A" ) {
+                    array_push( $drop_dates_array, date( 'Y-m-d', strtotime( $items[ $i ][3] ) ) );
+                } else {
+                    array_push( $drop_dates_array, "N/A" );
+                }
+
+            }
+            if ( ! empty( $items[ $i ][4] ) ) {
+                array_push( $pick_time_array, $items[ $i ][4] );
+            }
+            if ( ! empty( $items[ $i ][5] ) ) {
+                array_push( $drop_time_array, $items[ $i ][5] );
+            }
+            if ( ! empty( $items[ $i ][1] ) ) {
+                array_push( $units, $items[ $i ][1] );
+            }
+            if ( ! empty( $items[ $i ][6] ) ) {
+                array_push( $total_amount, number_format( $items[ $i ][6], 2, '.', '' ) );
+            }
+        }
+
+        $booking = array(
+            'order_id'       => $orderid,
+            'tool_id'        => implode( " , ", $items_array ),
+            'units'          => implode( " , ", $units ),
+            'date_from'      => implode( " , ", $pick_dates_array ),
+            'user_id'        => $user,
+            'guest_id'       => $guest,
+            'date_to'        => implode( " , ", $drop_dates_array ),
+            'message'        => $message,
+            'pick_time'      => implode( " , ", $pick_time_array ),
+            'drop_time'      => implode( " , ", $drop_time_array ),
+            'total_amount'   => implode( " , ", $total_amount ),
+            'payment_status' => 1,
+            'payment_id'     => $transaction_id,
+            'payment_type'   => $payment_type,
+            'status'         => implode( " , ", $status )
+        );
+
+        return $booking;
+    }
+    
 }
