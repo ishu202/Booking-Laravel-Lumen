@@ -105,7 +105,6 @@ abstract class BookingAbstract extends Model
                     'date_to'         => explode(" , ",$value->date_to),
                     'pick_time'       => explode(" , ",$value->pick_time),
                     'drop_time'       => explode(" , ",$value->drop_time),
-                    'message'         => explode(" , ",$value->message),
                     'is_outgoing'     => explode(" , ",$value->is_outgoing),
                     'is_incoming'     => explode(" , ",$value->is_incoming),
                     'is_past_due'     => explode(" , ",$value->is_past_due),
@@ -122,8 +121,10 @@ abstract class BookingAbstract extends Model
                     for ($i = 0; $i < count($temp['tool_id']) ; $i++){
                         $keys = array_keys($temp);
                         $values = array_column($temp,$i);
+
                         array_push($tool_data,array_combine($keys,$values));
                     }
+
                     return $tool_data;
                 };
             }

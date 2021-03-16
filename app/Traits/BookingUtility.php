@@ -149,7 +149,7 @@ trait BookingUtility
                 array_push( $units, $items[ $i ][1] );
             }
             if ( ! empty( $items[ $i ][6] ) ) {
-                array_push( $total_amount, number_format( $items[ $i ][6], 2, '.', '' ) );
+                array_push( $total_amount, number_format( (float) $items[ $i ][6], 2, '.', '' ) );
             }
         }
 
@@ -175,7 +175,7 @@ trait BookingUtility
     }
 
     public static function amountFormatter( $amount, $tax ) {
-        return number_format($amount + (($tax * $amount)/100),2,'.','');
+        return number_format((float) $amount + (($tax * $amount)/100),2,'.','');
     }
 
     public static function create_stripe_booking_refund_array( $guest, $user, $orderid, $items, $transaction_id, $payment_type, $message ) {
@@ -351,7 +351,7 @@ trait BookingUtility
                 array_push( $units, $items[ $i ][1] );
             }
             if ( ! empty( $items[ $i ][6] ) ) {
-                array_push( $total_amount, number_format( $items[ $i ][6], 2, '.', '' ) );
+                array_push( $total_amount, number_format( (float) $items[ $i ][6], 2, '.', '' ) );
             }
         }
 

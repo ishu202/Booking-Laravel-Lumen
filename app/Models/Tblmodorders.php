@@ -13,7 +13,7 @@ class Tblmodorders extends BookingAbstract implements UpdateOrderInterface
     {
         parent::__construct($attributes);
 
-        $this->setTable('r7.booking.tables.mod_booking');
+        $this->setTable(config('r7.booking.tables.mod_booking'));
     }
 
     public function get_all_mod_orders(string $order_id)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace R7\Booking\Traits;
 
 use Exception;
+use R7\Booking\Models\Tbltool;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\AuthenticationException;
@@ -139,10 +140,11 @@ trait Gateway
         return $this;
     }
 
-    public function createInvoiceAndCharge( $customerId, $transaction_type, $orderid, $itemData ): bool
+    public function createInvoiceAndCharge( $customerId, $transaction_type, $orderid, $itemData )
     {
         $this->createTaxRateStripe();
         $this->itemGenerator($itemData,$customerId);
+
         $this->base_request(function () use ($customerId) {
             return [
                 'invoice' => $this->stripe->invoices->create([
@@ -169,21 +171,23 @@ trait Gateway
         $this->base_request(function (){
             $states = app('r7.booking.tblusers')->fetch_state();
             $contact = app('r7.booking.tblusers')->display_contact_info();
-            $tax_State = array_reduce($states , function($memo, $state) use ($contact) {
-                preg_match("/{$state->State}/",$contact[0]['con_address'],$matches);
 
+            $tax_State = [];
+
+            foreach ($states as $state){
+                preg_match("/{$state->State}/",$contact[0]->con_address,$matches);
                 if (count($matches) > 0 ){
-                    array_push($memo,$matches);
+                    array_push($tax_State,$matches);
                 }
-                return $memo;
-            },[]);
+            }
+
             return [
                 'tax_rates' => array_map(function($state) {
                     return $this->stripe->taxRates->create([
                         'display_name' => 'TAX',
                         'description' => "TAX {$state[0]}",
                         'jurisdiction' => $state[0],
-                        'percentage' => $this->editorder['tax_percentage'][0]['taxpercentage'],
+                        'percentage' => app('r7.booking.tbltaxrate')->get_tax_rate()[0]->taxpercentage,
                         'inclusive' => false,
                     ]);
                 },$tax_State)
@@ -205,30 +209,23 @@ trait Gateway
     }
 
     private function itemGenerator($itemData,$customerId) {
+
         $this->base_request(function () use ($itemData,$customerId ) {
             return [
                 'line_item' => array_reduce($itemData,function($memo,$item) use ($customerId){
-                    $tool_name = array_map(function ($item_info) use ($item){
-                        preg_match("/{$item_info->id}/", $item[0],$matches);
-                        if(count($matches) > 0){
-                            array_push($matches, $item_info->t_name);
-                        }
-                        return $matches;
-                    } , $this->editorder['tools_rent']);
+                    $tool_name = Tbltool::find($item[0])->t_name;
 
-                    $filtered_tools = self::array_flatten(array_filter($tool_name, function($val){
-                        return count($val) > 0;
-                    }));
                     array_push($memo,
                         $this->stripe->invoiceItems->create([
                             "amount"      => $item[6] * 100,
                             "currency"    => "usd",
                             "customer"    => $customerId,
-                            "description" => $filtered_tools[1]
+                            "description" => $tool_name
                         ])
                     );
                     return $memo;
                 },[])
+
             ];
         });
     }
