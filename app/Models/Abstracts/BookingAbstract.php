@@ -181,8 +181,9 @@ abstract class BookingAbstract extends Model
         $order_number = function () use ($last_order_table_id){
             $occourance = self::strpos_recursive($last_order_table_id->order_id,"-");
 
-            $date_time_str = substr($last_order_table_id->order_id, $occourance[0],$occourance[1]);
-            if (date("%m%y", $date_time_str) == date("%m%y")){
+            $date_time_str = substr($last_order_table_id->order_id, $occourance[0] + 1,$occourance[1] - ($occourance[0] + 1));
+            $last_order_date = new \DateTime($date_time_str);
+            if ($last_order_date->format("my") == date("my")){
                 return $last_order_table_id->id++;
             }else{
                 return 1;

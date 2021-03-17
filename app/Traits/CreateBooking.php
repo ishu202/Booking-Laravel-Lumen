@@ -42,7 +42,7 @@ trait CreateBooking
 
         if ( app('r7.booking.transaction')->insert_transaction_cash( self::prepare_cash_response( $orderid, $totalAmount, $transaction_type, $message ) ) ) {
             $booking = self::create_cash_booking_array( $guest, $user, $orderid, $items, $payment_type, $message );
-            if ( app('r7.booking.tblmodorders')->update_booking_data( $booking ) ) {
+            if ( app('r7.booking.tblrinfo')->store_booking_data( $booking ) ) {
                 return true;
             } else {
                 return false;
