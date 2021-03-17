@@ -55,4 +55,9 @@ class Tblrinfo extends BookingAbstract implements BookingInterface , InvoiceInte
     {
         return self::item_generator($order_table_id);
     }
+
+    public function store_booking_data(array $booking)
+    {
+        self::query()->create($booking);
+    }
 }

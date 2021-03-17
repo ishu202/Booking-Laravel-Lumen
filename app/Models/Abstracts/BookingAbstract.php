@@ -7,9 +7,11 @@ namespace R7\Booking\Models\Abstracts;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use R7\Booking\Traits\BookingUtility;
 
 abstract class BookingAbstract extends Model
 {
+    use BookingUtility;
     const CREATED_AT = "CreationDate";
     const UPDATED_AT = "UpdationDate";
 
@@ -161,5 +163,38 @@ abstract class BookingAbstract extends Model
         return $generated_result;
     }
 
+    public function archive_order($order_id)
+    {
+        try {
+            return self::query()->where(['order_id' => $order_id])->update([
+                'order_status' => 0
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function generate_order_id(): string
+    {
+        $length = 7;
+        $last_order_table_id = DB::table('tblrinfo')->orderByDesc('id')->first();
+
+        $order_number = function () use ($last_order_table_id){
+            $occourance = self::strpos_recursive($last_order_table_id->order_id,"-");
+
+            $date_time_str = NULL;
+            if (date("%m%Y", $date_time_str) == date("%m%Y")){
+                return $last_order_table_id->id++;
+            }else{
+                return 1;
+            }
+        };
+
+        //date will prefix with the company id. eg:- id:m:Y
+        $date = strftime("%m%Y");
+
+
+        return "INV-".$date."-".substr(str_repeat(0, $length).$order_number(), - $length);
+    }
 
 }

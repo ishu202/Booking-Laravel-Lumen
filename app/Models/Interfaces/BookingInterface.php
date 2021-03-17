@@ -17,4 +17,6 @@ interface BookingInterface{
 
     public function booking_count();
 
+    public function store_booking_data( array $booking );
+
 }

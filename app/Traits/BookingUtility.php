@@ -306,7 +306,7 @@ trait BookingUtility
         return $transaction;
     }
 
-    private static function create_cash_booking_array( $guest, $user, $orderid, $items, $payment_type, $message ) {
+    public static function create_cash_booking_array( $guest, $user, $orderid, $items, $payment_type, $message ) {
         $items_array      = array();
         $pick_dates_array = array();
         $drop_dates_array = array();
@@ -374,6 +374,27 @@ trait BookingUtility
         );
 
         return $booking;
+    }
+
+    public static function store_transaction_generator($response_arr,$payment_type,$orderid): array
+    {
+        return [
+            'response' => json_encode( $response_arr ),
+            'status'   => 1,
+            'type'     => $payment_type,
+            'order_id' => $orderid
+        ];
+    }
+
+    public static function strpos_recursive($haystack, $needle, $offset = 0, &$results = array()): array
+    {
+        $offset = strpos($haystack, $needle, $offset);
+        if($offset === false) {
+            return $results;
+        } else {
+    $results[] = $offset;
+    return self::strpos_recursive($haystack, $needle, ($offset + 1), $results);
+        }
     }
 
 }

@@ -5,6 +5,7 @@ namespace R7\Booking\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use R7\Booking\Models\Tblbrand;
+use R7\Booking\Models\Tblguest;
 use R7\Booking\Models\Tblmodorders;
 use R7\Booking\Models\Tblrefundorder;
 use R7\Booking\Models\Tblrinfo;
@@ -36,6 +37,7 @@ class BookingServiceProvider extends ServiceProvider
             'r7.booking.transaction' => Transaction::class,
             'r7.booking.tblstripeCustomers' => TblstripeCustomers::class,
             'r7.booking.tblusers' => User::class,
+            'r7.booking.tblguest' => Tblguest::class,
             'r7.booking.tbltool' => Tbltool::class,
             'r7.booking.tbltaxrate' => Tbltaxrate::class,
             'r7.booking.tblsettings' => Tblsettings::class,
