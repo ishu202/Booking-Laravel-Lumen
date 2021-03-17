@@ -176,14 +176,13 @@ abstract class BookingAbstract extends Model
 
     public function generate_order_id(): string
     {
-        $length = 7;
         $last_order_table_id = DB::table('tblrinfo')->orderByDesc('id')->first();
 
         $order_number = function () use ($last_order_table_id){
             $occourance = self::strpos_recursive($last_order_table_id->order_id,"-");
 
-            $date_time_str = NULL;
-            if (date("%m%Y", $date_time_str) == date("%m%Y")){
+            $date_time_str = substr($last_order_table_id->order_id, $occourance[0],$occourance[1]);
+            if (date("%m%y", $date_time_str) == date("%m%y")){
                 return $last_order_table_id->id++;
             }else{
                 return 1;
@@ -191,10 +190,10 @@ abstract class BookingAbstract extends Model
         };
 
         //date will prefix with the company id. eg:- id:m:Y
-        $date = strftime("%m%Y");
+        $date = strftime("%m%y");
 
 
-        return "INV-".$date."-".substr(str_repeat(0, $length).$order_number(), - $length);
+        return "INV-".$date."-".$order_number();
     }
 
 }
