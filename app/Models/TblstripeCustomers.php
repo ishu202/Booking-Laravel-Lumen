@@ -28,10 +28,12 @@ class TblstripeCustomers extends Model implements StripeCustomerInterface
         ]);
     }
 
-    public function getCustomerToken($user_id)
+    public function getCustomerToken($user_id , $type_id)
     {
-        return self::query()->where(['user_id' => $user_id])
-                    ->get()->toArray();
+        return self::query()->where([
+            'user_id' => $user_id,
+            'user_type' => $type_id
+            ])->first()[0]['customerId'];
     }
 
     public function insert_customer_id_user($user_type, $user_id, $customer_id)
@@ -45,7 +47,7 @@ class TblstripeCustomers extends Model implements StripeCustomerInterface
 
     public function insert_payment_id_for_user($user_id, $payment_id)
     {
-        return self::query()->where(['customerid' => $user_id])
+        return self::query()->where(['customerId' => $user_id])
             ->update([
                 'paymentMethodId' => $payment_id
             ]);

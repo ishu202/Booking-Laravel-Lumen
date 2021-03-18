@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace R7\Booking\Traits;
 
 use Exception;
+use phpDocumentor\Reflection\Types\This;
 use R7\Booking\Models\Tbltool;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
@@ -279,59 +280,98 @@ trait Gateway
         },[]);
     }
 
-//	private function productGenerator($itemData) : self{
+    public function create_stripe_user($user_info)
+    {
+        $this->base_request(function () use ($user_info){
+            return [
+                "user" => $this->stripe->customers->create([
+                "address"=> array(
+                    "line1" => $user_info['add1'],
+                    "line2" => $user_info['add2'],
+                    "city" => $user_info['city'],
+                    "postal_code" => $user_info['zip'],
+                    "state" => $user_info['state']
+                ),
+                "description"=> (array_key_exists('type_id', $user_info))? "Online User Booking" : "Online Guest Booking",
+                "email"=> $user_info['email'],
+                "metadata"=> [
+                    'First Name' => $user_info['f_name'],
+                    'Last Name' => $user_info['l_name'],
+                    'Email' => $user_info['email'],
+                    'Phone' => $user_info['phone'],
+                    'Address Line 1' => $user_info['add1'],
+                    'Address Line 2' => $user_info['add2'],
+                    'Country' => $user_info['country'],
+                    'State' => $user_info['state'],
+                    'Zip' => $user_info['zip']
+                ],
+                "name"=> $user_info['f_name']." ".$user_info['l_name'],
+                "phone"=> $user_info['phone']
+            ])
+            ];
+        });
+    }
+
+//    public function attach_source_card_user()
+//    {
+//        $this->base_request(function (){
+//            return [
+//                'user_payment_source' => $this->stripe->paymentMethods->attach(
+//                    "payment_method",
+//                    ['customer' => $this->response['user']['id']]
+//                )
+//            ];
+//        });
+//    }
 //
-//		$this->base_request(function () use ($itemData){
-//
-//			return [
-//				'products' => array_reduce($this->editorder['tools_rent'],function($memo, $item) use($itemData){
-//
-//				if(array_search("{$item['id']}",$itemData)){
-//
-//					array_push($memo,
-//						$this->stripe->products->create([
-//							'name' => $item['t_name']
-//						])
-//
-//					);
-//				}
-//				return $memo;
-//			},[])
-//			];
-//		});
-//		return $this;
-//	}
-//
-//	private function priceGenerator($products){
-//		$this->base_request(function () use ($products ){
-//			return [
-//				'prices' => array_reduce($products, function($memo, $product) {
-//
-//					$this->stripe->prices->create([
-//						'unit_amount' => 2000,
-//						'currency' => 'usd',
-//						'recurring' => ['interval' => 'month'],
-//						'product' => $product['id']
-//					]);
-//
-//					$product['id']
-//
-//				return $memo;
-//			})
-//				];
-//			$price = [];
-//			$product_ids = array_column($products,'id');
-//			for ($i = 0; $i < count($product_ids); $i++){
-//				array_push($products['products_array'],[
-//					$i => $this->stripe->prices->create([
-//						'unit_amount' => 2000,
-//						'currency' => 'usd',
-//						'recurring' => ['interval' => 'month'],
-//						'product' => 'prod_IBhjk7BaWbDFKl',
-//					])
-//				]);
-//			}
-//			return $products;
-//		});
-//	}
+//    public function create_payment_method($card)
+//    {
+//        $this->base_request(function () use ($card){
+//            return [
+//                'payment_method' => $this->stripe->paymentMethods->create([
+//                'type' => 'card',
+//                    'card' => [
+//                        'number' => $card->number,
+//                        'exp_month' => $card->exp_month,
+//                        'exp_year' => $card->exp_year,
+//                        'cvc' => $card->cvv,
+//                    ]
+//                ])
+//            ];
+//        });
+//    }
+
+    public function create_default_source_card_user($customer_token,$stripe_token)
+    {
+        $this->base_request(function () use ($customer_token,$stripe_token){
+            return [
+                'default_payment' => $this->stripe->customers->createSource(
+                    $customer_token,
+                    ['source' => $stripe_token]
+                )
+            ];
+        });
+    }
+
+    public function check_dublicate_payment_method($customer_token,$cardid,$last4_card)
+    {
+        $this->base_request(function () use ($customer_token,$cardid,$last4_card){
+            $card_source = $this->stripe->customers->retrieveSource(
+                $customer_token,
+                $cardid
+            );
+
+
+            $customer_info = $card_source->jsonSerialize();
+            if($customer_info['last4'] != NULL){
+                if($customer_info['last4'] == $last4_card){
+                    return ['dublicate' => true];
+                }
+            }
+
+            return ['dublicate' => false];
+        });
+    }
+
+
 }
